@@ -962,6 +962,7 @@ void __noinline new_frame_init_overlays_palette_and_wipe() {
 void __no_inline_not_in_flash_func(new_frame_stuff)() {
     // this part of the per frame code is in RAM as it is needed during save
     if (sem_available(&render_frame_ready)) {
+        extern void cat_doom_frame_presented(void); cat_doom_frame_presented();
         sem_acquire_blocking(&render_frame_ready);
         display_video_type = next_video_type;
         display_frame_index = next_frame_index;
@@ -994,13 +995,13 @@ void __scratch_x("scanlines") fill_scanlines() {
     //
     // so we immediately kick off another DMA with the other buffer
     if (stretch) {
-        dispRenderLine(asl++, sdata[which] + 1, 320);
+        dispRenderLine(asl++, (uint16_t *)(sdata[which] + 1), 320);
         // duplicate ever 6th line by simply not updating any of the other
         // state or redrawing the next time around
-        if ((asl % 6) == 0) return;
+        if (asl < 240 && ((asl % 6) == 0 || asl == 239)) return;
     } else {
         uint16_t lsl = scanvideo_scanline_number(fake_scanline_buffer.scanline_id);
-        dispRenderLine(lsl + 20, sdata[which] + 1, 320);
+        dispRenderLine(lsl + 20, (uint16_t *)(sdata[which] + 1), 320);
     }
 #if SUPPORT_TEXT
 //    struct scanvideo_scanline_buffer *buffer = scanvideo_begin_scanline_generation_linked(display_video_type == VIDEO_TYPE_TEXT ? 2 : 1, false);

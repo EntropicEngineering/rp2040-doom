@@ -466,6 +466,7 @@ void handle_exit_key_down(int scancode, bool shift, uint8_t *kb_buffer, int kb_l
 uint8_t *exit_screen_kb_buffer_80;
 void __attribute((noreturn)) I_Quit (void)
 {
+    extern void cat_doom_exit(void); cat_doom_exit();
     extern void D_Endoom();
 #if USE_PICO_NET
     piconet_stop();

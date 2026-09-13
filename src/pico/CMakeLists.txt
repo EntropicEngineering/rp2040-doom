@@ -3,7 +3,6 @@ target_sources(common_pico INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/i_glob.c
         ${CMAKE_CURRENT_LIST_DIR}/i_input.c
         ${CMAKE_CURRENT_LIST_DIR}/i_system.c
-        ${CMAKE_CURRENT_LIST_DIR}/piconet.c
         ${CMAKE_CURRENT_LIST_DIR}/i_timer.c
         ${CMAKE_CURRENT_LIST_DIR}/i_video.c
         ${CMAKE_CURRENT_LIST_DIR}/stubs.c
@@ -13,7 +12,6 @@ target_sources(common_pico INTERFACE
 if (PICO_ON_DEVICE)
     target_sources(common_pico INTERFACE
             ${CMAKE_CURRENT_LIST_DIR}/blit.S
-            ${CMAKE_CURRENT_LIST_DIR}/picoflash.c
             )
     pico_wrap_function(common_pico malloc)
     pico_wrap_function(common_pico calloc)
@@ -33,7 +31,7 @@ target_include_directories(common_pico INTERFACE
 target_compile_definitions(common_pico INTERFACE
         NO_USE_MOUSE=1
         PICO_AUDIO_PWM8_DMA_IRQ=1
-        PICO_USE_SW_SPIN_LOCKS=0
+        PICO_USE_SW_SPIN_LOCKS=1
         PICO_USE_STACK_GUARDS=0 # todo we can actually use these sensibly, but right now we do overflow!
 )
 

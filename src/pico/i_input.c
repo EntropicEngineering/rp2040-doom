@@ -575,14 +575,13 @@ void I_GetEvent() {
 #ifdef DEFCON32_BADGE
 static const uint8_t bdef[] = {
         DEFCON32_BADGE_SW_FN_PIN, SDL_SCANCODE_LALT, SDL_SCANCODE_LALT,
-        DEFCON32_BADGE_SW_START_PIN, SDL_SCANCODE_ESCAPE, SDL_SCANCODE_TAB,
-        DEFCON32_BADGE_SW_SELECT_PIN, SDL_SCANCODE_RETURN, SDL_SCANCODE_1,
+        DEFCON32_BADGE_SW_START_PIN, SDL_SCANCODE_ESCAPE, SDL_SCANCODE_ESCAPE,
         DEFCON32_BADGE_SW_LEFT_PIN, SDL_SCANCODE_LEFT, SDL_SCANCODE_LEFT,
         DEFCON32_BADGE_SW_RIGHT_PIN, SDL_SCANCODE_RIGHT, SDL_SCANCODE_RIGHT,
         DEFCON32_BADGE_SW_UP_PIN, SDL_SCANCODE_UP, SDL_SCANCODE_UP,
         DEFCON32_BADGE_SW_DOWN_PIN, SDL_SCANCODE_DOWN, SDL_SCANCODE_DOWN,
-        DEFCON32_BADGE_SW_A_PIN, SDL_SCANCODE_SPACE, SDL_SCANCODE_SPACE,
-        DEFCON32_BADGE_SW_B_PIN, SDL_SCANCODE_LCTRL, SDL_SCANCODE_LCTRL,
+        DEFCON32_BADGE_SW_A_PIN, SDL_SCANCODE_LCTRL, SDL_SCANCODE_TAB,
+        DEFCON32_BADGE_SW_B_PIN, SDL_SCANCODE_SPACE, SDL_SCANCODE_1,
 };
 static uint8_t buttons[count_of(bdef)/3];
 static uint8_t keycodex[count_of(bdef)/3];
@@ -591,13 +590,15 @@ static uint8_t keycodex[count_of(bdef)/3];
 #endif
 
 void I_GetEventTimeout(int key_timeout) {
+    extern void cat_doom_service(void); cat_doom_service();
 #ifdef DEFCON32_BADGE
     static int mods;
     // this is a bit hacky, but just track the state
     // of each of the keys we care about, and select a different function
     // when the FN button is pressed
     for(int i=0;i<count_of(bdef);i+=3) {
-        uint new_sel = !gpio_get(bdef[i]);
+        extern bool cat_doom_button(uint pin);
+        uint new_sel = cat_doom_button(bdef[i]);
         uint last_sel = buttons[i/3];
         if (new_sel && !last_sel) {
             if (bdef[i+1] == SDL_SCANCODE_RSHIFT) mods |= WITH_SHIFT;

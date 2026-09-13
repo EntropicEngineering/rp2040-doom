@@ -1,3 +1,4 @@
+#include "hardware/clocks.h"
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
 // Copyright(C) 2005-2014 Simon Howard
@@ -413,7 +414,8 @@ static void I_Pico_UpdateSound(void)
             pico_default_asm(
                     "ssat    %0,  #16, %0"
                     : "+r" (x));
-            x = 2715 + x * 2715 / 32768;
+            int midpoint=(clock_get_hz(clk_sys)/PICO_SOUND_SAMPLE_FREQ)/2;
+            x = midpoint + (int)x * midpoint / 32768;
 #else
             x = 2715 + x * 2715 / 65536;
 #endif

@@ -500,9 +500,9 @@ function(add_doom_tiny SUFFIX RENDER_LIB)
 
         #NO_DRAW_MENU=1
         # SDK minimilization
-        PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1
-        PICO_TIME_DEFAULT_ALARM_POOL_MAX_TIMERS=1
-        PICO_DISABLE_SHARED_IRQ_HANDLERS=1
+        PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=0
+        PICO_TIME_DEFAULT_ALARM_POOL_MAX_TIMERS=16
+        PICO_DISABLE_SHARED_IRQ_HANDLERS=0
         PICO_USE_OPTIMISTIC_SBRK=1
 
         # MUSIC
@@ -510,7 +510,7 @@ function(add_doom_tiny SUFFIX RENDER_LIB)
         USE_DIRECT_MIDI_LUMP=1
 
         NO_USE_NET=1 # standard networking
-        USE_PICO_NET=1
+        USE_PICO_NET=0
         # for defcon32 badge - use user pins
         PICO_DEFAULT_I2C=0
         PICO_DEFAULT_I2C_SDA_PIN=28
@@ -566,7 +566,7 @@ function(add_doom_tiny SUFFIX RENDER_LIB)
         PICO_DEBUG_MALLOC=1
         EMU8950_NO_RATECONV=1
 
-        PICO_CORE1_STACK_SIZE=0x4f8
+        PICO_CORE1_STACK_SIZE=0x1000
 
         NO_IERROR=1
     )
@@ -640,7 +640,7 @@ if (PICO_SDK)
             NO_USE_FINALE_BUNNY=1
     )
     target_compile_definitions(doom_tiny PRIVATE
-            TINY_WAD_ADDR=0x10040000
+            TINY_WAD_ADDR=0x11000000
     )
     target_link_libraries(doom_tiny PRIVATE tiny_settings)
     if (HACK_ENABLE_STDIO_USB)
@@ -651,7 +651,7 @@ if (PICO_SDK)
                 PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=-1 # wait for host usb connection at init
         )
         get_target_property(COMPILE_DEFS doom_tiny COMPILE_DEFINITIONS)
-        list(REMOVE_ITEM COMPILE_DEFS PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=1)
+        list(REMOVE_ITEM COMPILE_DEFS PICO_TIME_DEFAULT_ALARM_POOL_DISABLED=0)
         set_property(TARGET doom_tiny PROPERTY COMPILE_DEFINITIONS ${COMPILE_DEFS})
         # hack to save some space so we don't need to move the WAD addr
         target_compile_definitions(doom_tiny PRIVATE
@@ -673,7 +673,7 @@ if (PICO_SDK)
         target_link_libraries(doom_tiny_usb PRIVATE tiny_settings pico_cd)
         target_compile_definitions(doom_tiny_usb PRIVATE
                 USB_SUPPORT=1
-                TINY_WAD_ADDR=0x10040000 # we seem to fit on badge at same address
+                TINY_WAD_ADDR=0x11000000 # we seem to fit on badge at same address
         )
         add_doom_tiny(_nost_usb render_newhope)
         target_include_directories(doom_tiny_nost_usb PRIVATE ${CMAKE_CURRENT_LIST_DIR}/pico/tusb_config)

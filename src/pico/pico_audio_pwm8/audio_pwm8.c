@@ -74,7 +74,7 @@ const audio_format_t *audio_pwm8_setup(const audio_format_t *intended_audio_form
     channel_config_set_transfer_data_size(&dma_config, DMA_SIZE_32);
     // todo only true for same pin
     pwm_config pc = pwm_get_default_config();
-    pwm_config_set_wrap(&pc, 5431); // 270000000 / 49716 ish
+    pwm_config_set_wrap(&pc, (clock_get_hz(clk_sys) + 24858) / 49716 - 1); // 270000000 / 49716 ish
     pwm_init(shared_state.slice_num, &pc, true);
     dma_channel_configure(dma_channel,
                           &dma_config,
@@ -116,53 +116,9 @@ static void update_pwm_frequency(uint32_t sample_freq) {
 //    assert(divider < 0x1000000);
 //    pio_sm_set_clkdiv_int_frac(audio_pio, shared_state.pio_sm, divider >> 8u, divider & 0xffu);
     // todo just for now
-    switch (sample_freq) {
-        case 49716:
-            if (system_clock_frequency == 270000000)
-                dma_hw->timer[0] = (6 << 16) | 32585;
-            else
-                panic("...");
-            break;
-#if 0
-        case 44100:
-            if (system_clock_frequency == 125000000)
-                dma_hw->timer[0] = (15 << 16) | 42517; // 44100 ish
-            else if (system_clock_frequency == 133000000)
-                dma_hw->timer[0] = (3 << 16) | 9047; // 44100 ish
-            else
-                panic("...");
-            break;
-        case 24000:////  case 48000:
-            if (system_clock_frequency == 125000000)
-                dma_hw->timer[0] = (12 << 16) | 15625; // 48000
-                else if (system_clock_frequency == 133000000)
-                    dma_hw->timer[0] = (12 << 16) | 16625; // 48000
-                    else
-                        panic("...");
-                    break;
-        case 48000:////  case 48000:
-            if (system_clock_frequency == 125000000)
-                dma_hw->timer[0] = (6 << 16) | 15625; // 48000
-            else if (system_clock_frequency == 133000000)
-                dma_hw->timer[0] = (6 << 16) | 16625; // 48000
-            else
-                panic("...");
-            break;
-        case 96000:////  case 48000:
-            if (system_clock_frequency == 125000000)
-                dma_hw->timer[0] = (3 << 16) | 15625; // 48000
-            else if (system_clock_frequency == 133000000)
-                dma_hw->timer[0] = (3 << 16) | 16625; // 48000
-            else
-                panic("...");
-            break;
-#endif
-        default:
-            panic("Unsupported frequency %d", sample_freq);
-    }
-    //dma_hw->timer[0] = (1 << 16) | 3250;//25;//50;
-//    dma_hw->timer[0] = (1 << 16) | 4000; // 31250
-//    dma_hw->timer[0] = (1 << 16) | 9504; // 31250
+    if(sample_freq != 49716)panic("Unsupported frequency %d",sample_freq);
+    /* DMA is paced by this PWM slice, not a DMA timer. */
+    pwm_set_wrap(shared_state.slice_num,(system_clock_frequency + sample_freq/2)/sample_freq - 1);
     shared_state.freq = sample_freq;
 }
 

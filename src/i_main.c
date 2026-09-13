@@ -63,49 +63,9 @@ int main(int argc, char **argv)
     myargc = argc;
     myargv = argv;
 #endif
-#if PICO_ON_DEVICE
-#if PICO_RP2350
-    uint clkdiv = 3;
-    uint rxdelay = 2;
-    hw_write_masked(
-            &qmi_hw->m[0].timing,
-            ((clkdiv << QMI_M0_TIMING_CLKDIV_LSB) & QMI_M0_TIMING_CLKDIV_BITS) |
-            ((rxdelay << QMI_M0_TIMING_RXDELAY_LSB) & QMI_M0_TIMING_RXDELAY_BITS),
-            QMI_M0_TIMING_CLKDIV_BITS | QMI_M0_TIMING_RXDELAY_BITS
-    );
-#endif
-    vreg_set_voltage(VREG_VOLTAGE_1_30);
-    busy_wait_us(1000);
-    // todo pause? is this the cause of the cold start issue?
-    set_sys_clock_khz(270000, true);
-#if !USE_PICO_NET
-    // debug ?
-//    gpio_debug_pins_init();
-#endif
-#ifdef PICO_SMPS_MODE_PIN
-    gpio_init(PICO_SMPS_MODE_PIN);
-    gpio_set_dir(PICO_SMPS_MODE_PIN, GPIO_OUT);
-    gpio_put(PICO_SMPS_MODE_PIN, 1);
-#endif
-#endif
-#if LIB_PICO_STDIO
-    stdio_init_all();
-#endif
-#if PICO_BUILD
+extern void cat_doom_init(void);
+    cat_doom_init();
     I_Init();
-#endif
-#if USE_PICO_NET
-    // do init early to set pulls
-    piconet_init();
-#endif
-//!
-    // Print the program version and exit.
-    //
-    if (M_ParmExists("-version") || M_ParmExists("--version")) {
-        puts(PACKAGE_STRING);
-        exit(0);
-    }
-
 #if !NO_USE_ARGS
     M_FindResponseFile();
 #endif

@@ -97,3 +97,5 @@ configure_file(src/setup/setup-manifest.xml.in src/setup/setup-manifest.xml)
 foreach(SUBDIR textscreen midiproc opl pcsound src)
     add_subdirectory("${SUBDIR}")
 endforeach()
+
+include(${CAT_DOOM_DIR}/cat.cmake)

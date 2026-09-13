@@ -863,10 +863,11 @@ void M_SaveSelect(int choice)
     {
         savegamestrings[choice][0] = 0;
 
-        if (joypadSave)
-        {
-            SetDefaultSaveName(choice);
-        }
+#ifdef DEFCON32_BADGE
+        SetDefaultSaveName(choice);
+#else
+        if (joypadSave)SetDefaultSaveName(choice);
+#endif
     }
     stringEntryBuffer = savegamestrings[choice];
     stringEntryIndex = strlen(savegamestrings[choice]);
@@ -1218,8 +1219,10 @@ void M_DrawOptions(void)
 			              PU_CACHE));
 #else
     // "Game" for Network
+#if USE_PICO_NET
     V_DrawPatchDirect(OptionsDef.x + 105, OptionsDef.y + LINEHEIGHT * networkgame,
                       VPATCH_HANDLE(VPATCH_NAME(M_GAME)));
+#endif
 
 #endif
 
@@ -1573,10 +1576,8 @@ void M_QuitDOOM(int choice)
 
     M_StartMessage(endstring,M_QuitResponse,true);
 #else
-    // one less \n as M_StartMessage2 adds a newline between
-    // note on badge we don't want to quit as we have removed
-    // the DOS mode
-//    M_StartMessage2(M_SelectEndMessage(),M_QuitResponse,true, "\n" DOSY);
+    M_StartMessage2("RETURN TO CAT?",M_QuitResponse,true,
+                    "A: YES    B: NO\nNO SD: SESSION SAVES WILL END.");
 #endif
 }
 

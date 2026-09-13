@@ -9,11 +9,11 @@
 #define PIN_SCL			3
 #define PIN_WS2812		4
 
-#define PIN_LCD_DnC		5
-#define PIN_LCD_DO		6
-#define PIN_LCD_SCK		8
-#define PIN_LCD_CS		9
-#define PIN_LCD_BL		10
+#define PIN_LCD_DnC		17
+#define PIN_LCD_DO		19
+#define PIN_LCD_SCK		18
+#define PIN_LCD_CS		21
+#define PIN_LCD_BL		23
 
 #define PIN_SELF_PWR	11
 
@@ -22,14 +22,14 @@
 #define PIN_SD_SCK		14
 #define PIN_SD_MOSI		15
 
-#define PIN_BTN_R		16
-#define PIN_BTN_D		17
-#define PIN_BTN_U		18
-#define PIN_BTN_L		19
-#define PIN_BTN_B		20
-#define PIN_BTN_A		21
-#define PIN_BTN_START	22
-#define PIN_BTN_SEL		23
+#define PIN_BTN_R		10
+#define PIN_BTN_D		8
+#define PIN_BTN_U		7
+#define PIN_BTN_L		9
+#define PIN_BTN_B		36
+#define PIN_BTN_A		37
+#define PIN_BTN_START	29
+#define PIN_BTN_SEL		28
 #define PIN_BTN_CENTER	24
 
 
@@ -41,7 +41,7 @@
 
 
 //PWM use
-#define BACKLITE_PWM_INDEX			5
+#define BACKLITE_PWM_INDEX			3
 
 //DMA USE
 #define DISP_DMA_FIRST				0	//uses 2

@@ -43,89 +43,15 @@ static bool mDispOn;
 
 void gpiosConfig(bool firstTime)
 {
-    static struct {
-        uint8_t pin;
-        uint8_t padCfg;
-        uint8_t funcSel			: 5;
-        uint8_t oe				: 1;
-        uint8_t val				: 1;
-        uint8_t skipReconfig	: 1;	//do not reconfigure if not first call to gpiosConfig()
-    } const cfgs[] = {
-//            {PIN_RAM_NCS, PADS_BANK0_GPIO0_SLEWFAST_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_XIP_SS_N_1, 1, 1},
-
-            {PIN_LCD_DnC, 0, GPIO_FUNC_SIO, 1, 0, 1},
-            {PIN_LCD_SCK, PADS_BANK0_GPIO0_SLEWFAST_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PIO0_0, 1, 0, 1},
-            {PIN_LCD_DO, PADS_BANK0_GPIO0_SLEWFAST_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PIO0_0, 1, 0, 1},
-            {PIN_LCD_BL, 0, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PWM_A_0, 1, 0, 1},
-            {PIN_LCD_CS, 0, GPIO_FUNC_SIO, 1, 1, 1},
-
-//            {PIN_TOUCHINT, PADS_BANK0_GPIO0_PUE_BITS | PADS_BANK0_GPIO0_IE_BITS, GPIO_FUNC_SIO, 0, 0},
-
-//            {PIN_WS2812, 0, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PIO1_0, 1, 0},
-
-//            {PIN_SD_MISO, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_PUE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_SPI0_RX, 0, 0},
-//            {PIN_SD_NCS, PADS_BANK0_GPIO0_SLEWFAST_BITS, GPIO_FUNC_SIO, 1, 1},
-//            {PIN_SD_SCK, PADS_BANK0_GPIO0_SLEWFAST_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_SPI0_RX, 1, 0},
-//            {PIN_SD_MOSI, PADS_BANK0_GPIO0_SLEWFAST_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_SPI0_RX, 1, 0},
-
-            {PIN_BTN_L, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_R, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_U, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_D, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_A, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_B, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_START, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_SEL, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-            {PIN_BTN_CENTER, PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_PUE_BITS, GPIO_FUNC_SIO, 0, 0},
-
-//            {PIN_IRDA_IN, PADS_BANK0_GPIO0_PUE_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO1_SCHMITT_BITS, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PIO1_0, 0, 0},
-//            {PIN_IRDA_OUT, 0, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PIO1_0, 1, 0},
-//            {PIN_IRDA_SD, 0, GPIO_FUNC_SIO, 1, 1},
-
-            {PIN_SELF_PWR, 0, GPIO_FUNC_SIO, 1, 1},
-
-//            {PIN_SPQR, 0, IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_PWM_A_0, 1, 0},
-    };
-
-    uint32_t gpiosConfigged = 0;
-    uint_fast8_t i;
-
-    for (i = 0; i < sizeof(cfgs) / sizeof(*cfgs); i++) {
-
-        uint_fast8_t pinNo = cfgs[i].pin;
-
-        gpiosConfigged |= 1 << pinNo;
-
-        if (firstTime || !cfgs[i].skipReconfig) {
-
-            padsbank0_hw->io[pinNo] = (padsbank0_hw->io[pinNo] &~ (PADS_BANK0_GPIO0_ISO_BITS | PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_DRIVE_BITS | PADS_BANK0_GPIO0_PUE_BITS | PADS_BANK0_GPIO0_PDE_BITS | PADS_BANK0_GPIO0_SCHMITT_BITS | PADS_BANK0_GPIO0_SLEWFAST_BITS)) | cfgs[i].padCfg;
-            iobank0_hw->io[pinNo].ctrl = (iobank0_hw->io[pinNo].ctrl &~ IO_BANK0_GPIO0_CTRL_FUNCSEL_BITS) | (((uint32_t)cfgs[i].funcSel) << IO_BANK0_GPIO0_CTRL_FUNCSEL_LSB);
-
-            if (cfgs[i].oe) {
-
-                if (cfgs[i].val)
-                    sio_hw->gpio_set = 1 << pinNo;
-                else
-                    sio_hw->gpio_clr = 1 << pinNo;
-
-                sio_hw->gpio_oe_set = 1 << pinNo;
-            }
-            else
-                sio_hw->gpio_oe_clr = 1 << pinNo;
-        }
-    }
-
-//now the leftovers
-    if (0 && firstTime) {
-        for (i = 0; i < 30; i++) {
-
-            if (!(gpiosConfigged & (1 << i))) {
-
-                padsbank0_hw->io[i] |= PADS_BANK0_GPIO0_OD_BITS | PADS_BANK0_GPIO0_ISO_BITS;
-                iobank0_hw->io[i].ctrl |= IO_BANK0_GPIO0_CTRL_FUNCSEL_VALUE_NULL;
-            }
-        }
-    }
+    gpio_init(PIN_LCD_DnC); gpio_set_dir(PIN_LCD_DnC, true);
+    gpio_init(PIN_LCD_CS); gpio_set_dir(PIN_LCD_CS, true); gpio_put(PIN_LCD_CS, true);
+    gpio_set_function(PIN_LCD_SCK, GPIO_FUNC_PIO0);
+    gpio_set_function(PIN_LCD_DO, GPIO_FUNC_PIO0);
+    gpio_set_function(PIN_LCD_BL, GPIO_FUNC_PWM);
+    gpio_init(22); gpio_set_dir(22, true); gpio_put(22, false);
+    sleep_ms(20); gpio_put(22, true); sleep_ms(120);
+    const uint8_t pins[] = {7,8,9,10,28,29,36,37};
+    for (uint i=0; i<sizeof pins; ++i) {gpio_init(pins[i]);gpio_set_dir(pins[i],false);gpio_pull_up(pins[i]);}
 }
 
 static void __not_in_flash_func(lcdByte)(uint_fast8_t val) {
@@ -186,10 +112,12 @@ void dispWaitLine(void) {
 }
 
 void __not_in_flash_func(dispRenderLine)(uint y, uint16_t *buf, uint32_t width) {
-    while (dma_channel_is_busy(DISP_DMA_XFER_CH));
+    extern void cat_doom_capture_line(uint, const uint16_t *);
+    cat_doom_capture_line(y, buf);
+    while (dma_channel_is_busy(DISP_DMA_XFER_CH)) tight_loop_contents();
     busy_wait_at_least_cycles(3200);
     dispPrvSetPioWidth(8);
-    lcdSetRegion(239-y, 0, 1, width, 0, 0);
+    lcdSetRegion(0, y, width, 1, 0, 0);
     lcdCmd(0x2c, false, -1); //write data command
     dispPrvSetPioWidth(16);
     dma_channel_transfer_from_buffer_now(DISP_DMA_XFER_CH, buf, 320);
@@ -210,7 +138,7 @@ static bool dispPrvTurnOn(bool firstTime) {
     pwm_hw->slice[BACKLITE_PWM_INDEX].top = (pwm_hw->slice[BACKLITE_PWM_INDEX].top & ~PWM_CH0_TOP_BITS) | (1022
             << PWM_CH1_TOP_LSB);        //this is correct. values valid for "cc" become 0..1024 to span the range of 0..100% duty
     pwm_hw->slice[BACKLITE_PWM_INDEX].ctr = 0;
-    *(volatile uint16_t *) &pwm_hw->slice[BACKLITE_PWM_INDEX].cc = 0;
+    pwm_set_gpio_level(PIN_LCD_BL, 0);
     pwm_hw->slice[BACKLITE_PWM_INDEX].csr = (pwm_hw->slice[BACKLITE_PWM_INDEX].csr &
                                              ~(PWM_CH0_CSR_PH_ADV_BITS | PWM_CH0_CSR_PH_RET_BITS |
                                                PWM_CH0_CSR_DIVMODE_BITS | PWM_CH0_CSR_B_INV_BITS |
@@ -341,8 +269,8 @@ bool dispInit(uint32_t desiredFramerate) {
     lcdDelayMs(10);
 
 
-    lcdCmd(0x36, true, 0x00, -1);
-    lcdSetRegion(0, 0, HARDWARE_WIDTH, HARDWARE_HEIGHT, 0, 0);
+    lcdCmd(0x36, true, 0xA0, -1); /* Same panel orientation as CAT. */
+    lcdSetRegion(0, 0, 320, 240, 0, 0);
 
     lcdCmd(0x20, true, -1);
     lcdDelayMs(10);
@@ -415,6 +343,6 @@ void dispSetBrightness(uint_fast8_t bri) {
     pwmVal += 114;
 
 //    printf("bri %u -> %u\n", bri, pwmVal);
-    *(volatile uint16_t *) &pwm_hw->slice[BACKLITE_PWM_INDEX].cc = pwmVal;        //so backlight stays on
+    pwm_set_gpio_level(PIN_LCD_BL, pwmVal);        //so backlight stays on
 }
 
